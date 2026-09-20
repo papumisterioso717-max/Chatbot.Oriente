@@ -1,5 +1,42 @@
 "use strict";
 
+function enableMiddlePan(viewport) {
+  let pan = null;
+  function finish() {
+    if (!pan) return;
+    const pointer = pan.pointer;
+    pan = null;
+    viewport.classList.remove("panning-canvas");
+    if (viewport.hasPointerCapture(pointer)) viewport.releasePointerCapture(pointer);
+  }
+  viewport.addEventListener("pointerdown", event => {
+    if (event.button !== 1 || event.buttons !== 4) return;
+    const bounds = viewport.getBoundingClientRect();
+    if (event.clientX >= bounds.left + viewport.clientWidth || event.clientY >= bounds.top + viewport.clientHeight) return;
+    event.preventDefault();
+    pan = {pointer:event.pointerId, x:event.clientX, y:event.clientY,
+      left:viewport.scrollLeft, top:viewport.scrollTop};
+    viewport.setPointerCapture(event.pointerId);
+    viewport.classList.add("panning-canvas");
+    viewport.focus({preventScroll:true});
+  });
+  // Suppress the browser's middle-button autoscroll and auxiliary click.
+  viewport.addEventListener("mousedown", event => { if(event.button === 1) event.preventDefault(); });
+  viewport.addEventListener("auxclick", event => { if(event.button === 1) event.preventDefault(); });
+  viewport.addEventListener("pointermove", event => {
+    if (!pan || event.pointerId !== pan.pointer) return;
+    if (!(event.buttons & 4)) { finish(); return; }
+    event.preventDefault();
+    viewport.scrollLeft = pan.left - (event.clientX - pan.x);
+    viewport.scrollTop = pan.top - (event.clientY - pan.y);
+  });
+  for (const name of ["pointerup", "pointercancel", "lostpointercapture"]) {
+    viewport.addEventListener(name, event => { if(pan && event.pointerId === pan.pointer) finish(); });
+  }
+  viewport.addEventListener("keydown", event => { if(event.key === "Escape") finish(); });
+  window.addEventListener("blur", finish);
+}
+
 function enableCanvasSelection(viewport, onSelect) {
   let selection = null;
   function finish() {
@@ -45,6 +82,7 @@ function enableCanvasSelection(viewport, onSelect) {
   window.addEventListener("blur",finish);
 }
 
+enableMiddlePan(document.getElementById("graph-viewport"));
 enableCanvasSelection(document.getElementById("graph-viewport"), ids => {
   movingNodes.clear();
   ids.forEach(id=>movingNodes.add(id));

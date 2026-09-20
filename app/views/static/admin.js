@@ -152,7 +152,19 @@ function draw() {
     else { const arc=Math.max(8,Math.min(a.y,b.y)-18-offset); d=`M ${x1} ${y1} C ${x1+40} ${y1}, ${x1+40} ${arc}, ${x1} ${arc} L ${x2-15} ${arc} Q ${x2-28} ${arc}, ${x2-28} ${y2} L ${x2} ${y2}`; }
     const path=svg("path",{d,class:"graph-edge"+(id===selected || option.next===selected?" active":""),"marker-end":"url(#arrow)"});
     const title=svg("title",{}); title.textContent=option.label; path.append(title); lines.append(path);
-    const label=svg("text",{x:x1+5,y:y1-8,class:"edge-label"});label.textContent=option.label.length>14?option.label.slice(0,12)+"…":option.label; lines.append(label);
+    const length=path.getTotalLength(), middle=length/2;
+    const point=path.getPointAtLength(middle);
+    const before=path.getPointAtLength(Math.max(0,middle-2));
+    const after=path.getPointAtLength(Math.min(length,middle+2));
+    let angle=Math.atan2(after.y-before.y,after.x-before.x)*180/Math.PI;
+    // Keep the text upright, including connections pointing back to the left.
+    if(angle>90) angle-=180;
+    if(angle<-90) angle+=180;
+    const label=svg("text",{x:0,y:-8,class:"edge-label","text-anchor":"middle",
+      transform:`translate(${point.x} ${point.y}) rotate(${angle})`});
+    label.textContent=option.label.length>14?option.label.slice(0,12)+"…":option.label;
+    const labelTitle=svg("title",{});labelTitle.textContent=option.label;label.append(labelTitle);
+    lines.append(label);
   }));
   $("graph-nodes").replaceChildren();
   const query=$("search").value.toLowerCase();
