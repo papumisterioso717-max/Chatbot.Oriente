@@ -1,0 +1,11 @@
+GUÍA DE NAVEGACIÓN — DEMOSTRACIÓN
+
+1. Elige uno de los temas del menú principal.
+2. Selecciona los botones para explorar las opciones.
+3. Usa Volver para regresar al nodo anterior.
+4. Usa Menú principal para reiniciar el recorrido.
+
+Puedes abrir las imágenes aparte, leer esta guía en el chat o descargarla.
+Los enlaces externos se abren en una pestaña independiente.
+
+Este archivo es un ejemplo técnico; no contiene requisitos institucionales.
