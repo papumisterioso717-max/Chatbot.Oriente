@@ -3,6 +3,8 @@ const $ = id => document.getElementById(id);
 let snapshot, draft, selected = null, dirty = false, busy = false;
 const SVG = "http://www.w3.org/2000/svg";
 let graphZoom = 1, graphWidth = 650, graphHeight = 360;
+// Reserve screen-space around the graph, independently of its zoom or node count.
+const CANVAS_MARGIN = 10000;
 const MIN_ZOOM = 0.25, MAX_ZOOM = 2;
 const movingNodes = new Set();
 const manualPositions = new Map();
@@ -33,7 +35,7 @@ let renderedPositions = new Map(), dragState = null, suppressGraphClick = false;
 try {
   const saved = JSON.parse(localStorage.getItem("orienta-node-positions") || "{}");
   Object.entries(saved).forEach(([id, point]) => {
-    if (Number.isFinite(point.x) && Number.isFinite(point.y) && point.x >= 0 && point.y >= 0)
+    if (Number.isFinite(point.x) && Number.isFinite(point.y))
       manualPositions.set(id, point);
   });
 } catch { /* Layout storage is optional; the conversation is unaffected. */ }
@@ -43,20 +45,22 @@ function storePositions() {
 }
 function applyGraphZoom() {
   $("graph-canvas").style.transform = `scale(${graphZoom})`;
-  $("graph-space").style.width = Math.ceil(graphWidth * graphZoom) + "px";
-  $("graph-space").style.height = Math.ceil(graphHeight * graphZoom) + "px";
+  $("graph-canvas").style.left = CANVAS_MARGIN + "px";
+  $("graph-canvas").style.top = CANVAS_MARGIN + "px";
+  $("graph-space").style.width = Math.ceil(graphWidth * graphZoom + CANVAS_MARGIN * 2) + "px";
+  $("graph-space").style.height = Math.ceil(graphHeight * graphZoom + CANVAS_MARGIN * 2) + "px";
   $("zoom-level").textContent = Math.round(graphZoom * 100) + "%";
   $("zoom-out").disabled = graphZoom <= MIN_ZOOM;
   $("zoom-in").disabled = graphZoom >= MAX_ZOOM;
 }
 function changeGraphZoom(step) {
   const viewport = $("graph-viewport");
-  const x = (viewport.scrollLeft + viewport.clientWidth / 2) / graphZoom;
-  const y = (viewport.scrollTop + viewport.clientHeight / 2) / graphZoom;
+  const x = (viewport.scrollLeft + viewport.clientWidth / 2 - CANVAS_MARGIN) / graphZoom;
+  const y = (viewport.scrollTop + viewport.clientHeight / 2 - CANVAS_MARGIN) / graphZoom;
   graphZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, Math.round((graphZoom + step) * 100) / 100));
   applyGraphZoom();
-  viewport.scrollLeft = x * graphZoom - viewport.clientWidth / 2;
-  viewport.scrollTop = y * graphZoom - viewport.clientHeight / 2;
+  viewport.scrollLeft = CANVAS_MARGIN + x * graphZoom - viewport.clientWidth / 2;
+  viewport.scrollTop = CANVAS_MARGIN + y * graphZoom - viewport.clientHeight / 2;
 }
 function notice(message, error = false) { $("notice").textContent = message; $("notice").className = error ? "error" : ""; }
 async function api(path, method = "GET", body) {
@@ -177,7 +181,7 @@ function edit(id) {
   $("editor-title").textContent="Configurar · "+id;$("node-id").value=id;$("node-type").value=node.type;$("initial").textContent=id===draft.bot.start_node?"Inicial":"";$("delete").hidden=id===draft.bot.start_node;
   $("contents").replaceChildren();$("options-editor").replaceChildren();node.content.forEach(contentRow);node.options.forEach(optionRow);draw();
 }
-function center(){const node=[...$("graph-nodes").children].find(node=>node.dataset.node===selected);if(node){const viewport=$("graph-viewport");viewport.scrollLeft=(node.offsetLeft+node.offsetWidth/2)*graphZoom-viewport.clientWidth/2;viewport.scrollTop=(node.offsetTop+node.offsetHeight/2)*graphZoom-viewport.clientHeight/2;}}
+function center(){const node=[...$("graph-nodes").children].find(node=>node.dataset.node===selected);if(node){const viewport=$("graph-viewport");viewport.scrollLeft=CANVAS_MARGIN+(node.offsetLeft+node.offsetWidth/2)*graphZoom-viewport.clientWidth/2;viewport.scrollTop=CANVAS_MARGIN+(node.offsetTop+node.offsetHeight/2)*graphZoom-viewport.clientHeight/2;}}
 async function load(){if(busy || (dirty&&!confirm("¿Descartar los cambios sin guardar y recargar?")))return;try{snapshot=await api("/tree");draft=structuredClone(snapshot.knowledge);dirty=false;$("draft-status").textContent="Guardado";$("draft-status").className="";edit(draft.bot.start_node);center();notice("Selecciona un nodo. Los cambios se publican al guardar el árbol.");}catch(error){notice(error.message,true);}}
 $("editor").addEventListener("input",()=>{capture();changed();});$("editor").addEventListener("change",()=>{capture();changed();});$("editor").onsubmit=event=>event.preventDefault();
 $("search").oninput=draw;$("locate").onclick=center;$("reload").onclick=load;
@@ -238,8 +242,8 @@ graphViewport.addEventListener("pointermove", event => {
   dragState.moved=true;
   let x=(dx+graphViewport.scrollLeft-dragState.left)/graphZoom;
   let y=(dy+graphViewport.scrollTop-dragState.top)/graphZoom;
-  x=Math.max(x, -Math.min(...[...dragState.start.values()].map(p=>p.x))+8);
-  y=Math.max(y, -Math.min(...[...dragState.start.values()].map(p=>p.y))+8);
+  x=Math.max(x, -CANVAS_MARGIN/MAX_ZOOM-Math.min(...[...dragState.start.values()].map(p=>p.x))+8);
+  y=Math.max(y, -CANVAS_MARGIN/MAX_ZOOM-Math.min(...[...dragState.start.values()].map(p=>p.y))+8);
   dragState.start.forEach((point,id) => manualPositions.set(id,{x:point.x+x,y:point.y+y}));
   graphViewport.classList.add("dragging-nodes");
   draw();

@@ -26,6 +26,10 @@ Los botones **− / +** de la esquina inferior derecha ajustan el zoom del lienz
 entre 25 % y 200 %, en pasos de 25 %. Solo escalan nodos y conexiones; el panel de
 configuración y los controles conservan su tamaño. **Centrar selección** respeta
 el zoom elegido. El zoom es visual y no modifica el YAML ni requiere guardar.
+Mantén el **botón izquierdo** sobre el fondo vacío del lienzo y arrastra para
+desplazar la vista horizontal o verticalmente. Funciona con cualquier zoom y
+respeta los límites de desplazamiento. No mueve los nodos ni modifica el árbol;
+el clic derecho mantiene su menú habitual.
 Puedes arrastrar un nodo individual o usar **Ctrl + clic** para seleccionar varios.
 **Seleccionar todos** (o Ctrl + A con el foco dentro del lienzo) permite moverlos
 juntos arrastrando cualquiera de los seleccionados. Escape o un clic en el fondo
@@ -377,3 +381,5 @@ añadir autenticación. Cualquier usuario con acceso local puede administrarlo.
 Verificación de fase 4: 21 pruebas correctas, incluidas creación/edición/eliminación,
 opciones, conflictos, referencias inválidas, archivos inexistentes, recuperación
 ante fallos de escritura y acceso HTTP al panel.
+
+El lienzo conserva un margen amplio alrededor del árbol en todos los niveles de zoom. Arrastra el fondo con el botón izquierdo para explorar en cualquier dirección; Centrar selección permite regresar al nodo seleccionado.
