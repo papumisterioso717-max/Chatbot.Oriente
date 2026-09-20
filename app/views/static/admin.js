@@ -80,6 +80,40 @@ function createNode() {
   draft.nodes[id] = {type:"information",content:[{type:"text",text:"Nueva respuesta"}],options:[]};
   return id;
 }
+// Search in screen coordinates so placement follows both panning and zoom.
+function visibleNodePosition() {
+  const viewport = $("graph-viewport"), bounds = viewport.getBoundingClientRect();
+  const originX = bounds.left + viewport.clientLeft, originY = bounds.top + viewport.clientTop;
+  const width = 190 * graphZoom, height = 112 * graphZoom, gap = 10;
+  const obstacles = [...$("graph-nodes").querySelectorAll(".graph-node"),
+    ...$("graph-lines").querySelectorAll(".edge-label"), document.querySelector(".graph-zoom")]
+    .filter(Boolean).map(element => element.getBoundingClientRect());
+  // Small padded pieces cover the actual curves, including arrowheads.
+  for (const path of $("graph-lines").querySelectorAll(".graph-edge")) {
+    const length = path.getTotalLength(), matrix = path.getScreenCTM();
+    const steps = Math.max(1, Math.ceil(length * graphZoom / 6));
+    for (let index = 0; index <= steps; index++) {
+      const point = path.getPointAtLength(length * index / steps).matrixTransform(matrix);
+      obstacles.push({left:point.x-8, right:point.x+8, top:point.y-8, bottom:point.y+8});
+    }
+  }
+  const maxX = viewport.clientWidth - width - gap, maxY = viewport.clientHeight - height - gap;
+  if (maxX < gap || maxY < gap) return null;
+  const candidates = [];
+  for (let y = gap; y <= maxY; y += 12) {
+    for (let x = gap; x <= maxX; x += 12) candidates.push({x,y});
+  }
+  const cx = (viewport.clientWidth-width)/2, cy = (viewport.clientHeight-height)/2;
+  candidates.sort((a,b) => Math.hypot(a.x-cx,a.y-cy)-Math.hypot(b.x-cx,b.y-cy));
+  for (const point of candidates) {
+    const left = originX + point.x, top = originY + point.y;
+    if (obstacles.some(rect => left < rect.right+gap && left+width > rect.left-gap &&
+      top < rect.bottom+gap && top+height > rect.top-gap)) continue;
+    return {x:(viewport.scrollLeft+point.x-CANVAS_MARGIN)/graphZoom,
+      y:(viewport.scrollTop+point.y-CANVAS_MARGIN)/graphZoom};
+  }
+  return null;
+}
 function svg(tag, attrs) { const element = document.createElementNS(SVG,tag); Object.entries(attrs).forEach(([k,v]) => element.setAttribute(k,v)); return element; }
 function draw() {
   if (!draft) return;
@@ -187,7 +221,16 @@ $("editor").addEventListener("input",()=>{capture();changed();});$("editor").add
 $("search").oninput=draw;$("locate").onclick=center;$("reload").onclick=load;
 $("zoom-out").onclick=()=>changeGraphZoom(-0.25);
 $("zoom-in").onclick=()=>changeGraphZoom(0.25);
-$("new").onclick=()=>{if(!draft||busy)return;capture();const id=createNode();edit(id);changed();center();};
+$("new").onclick=()=>{
+  if(!draft||busy)return;
+  capture();
+  const point=visibleNodePosition();
+  if(!point){notice("No hay espacio libre en esta vista. Aleja el zoom o desplázate a una zona vacía para crear el nodo.",true);return;}
+  // Keep existing cards and their connections in place when adding a disconnected node.
+  renderedPositions.forEach((position,id)=>manualPositions.set(id,{...position}));
+  const id=createNode();manualPositions.set(id,point);storePositions();
+  edit(id);changed();notice("Nodo creado en el espacio libre de esta vista.");
+};
 $("add-content").onclick=()=>{contentRow({type:$("content-type").value});capture();changed();};
 $("add-option").onclick=()=>{capture();const id=createNode(),node=draft.nodes[selected];node.options.push({id:unique("opcion_",node.options.map(o=>o.id)),label:"Nueva opción",next:id});edit(selected);changed();notice("Rama creada. Pulsa «Configurar nodo destino» o selecciónalo en el árbol.");};
 $("add-existing").onclick=()=>{capture();const node=draft.nodes[selected];node.options.push({id:unique("opcion_",node.options.map(o=>o.id)),label:"Nueva opción",action:"back"});edit(selected);changed();};
