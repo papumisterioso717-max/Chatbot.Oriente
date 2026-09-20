@@ -247,8 +247,49 @@ function selectAllNodes() {
   graphViewport.focus({preventScroll:true});
 }
 $("select-all-nodes").onclick = selectAllNodes;
+function fanLayout(nodes, root, anchor) {
+  // Assign shared children to their first parent; back links never recurse.
+  const children=new Map(), seen=new Set(), order=[], roots=[];
+  for(const start of [root,...Object.keys(nodes)]) {
+    if(seen.has(start)) continue;
+    roots.push(start);seen.add(start);
+    const queue=[start];
+    for(let index=0;index<queue.length;index++) {
+      const id=queue[index], branch=[];order.push(id);
+      for(const option of nodes[id].options) {
+        if(!nodes[option.next] || seen.has(option.next)) continue;
+        seen.add(option.next);branch.push(option.next);queue.push(option.next);
+      }
+      children.set(id,branch);
+    }
+  }
+  const heights=new Map(), positions=new Map();
+  for(const id of [...order].reverse())
+    heights.set(id,Math.max(185,children.get(id).reduce((sum,child)=>sum+heights.get(child),0)));
+  let top=anchor.y-heights.get(root)/2;
+  for(const start of roots) {
+    const pending=[{id:start,x:anchor.x,top}];
+    while(pending.length) {
+      const item=pending.pop(), branch=children.get(item.id);
+      positions.set(item.id,{x:item.x,y:item.top+heights.get(item.id)/2});
+      let childTop=item.top;
+      for(const child of branch) {
+        pending.push({id:child,x:item.x+400,top:childTop});
+        childTop+=heights.get(child);
+      }
+    }
+    top+=heights.get(start)+185;
+  }
+  return positions;
+}
 $("reset-layout").onclick = () => {
-  manualPositions.clear(); movingNodes.clear(); storePositions(); draw(); center();
+  if(!draft || busy) return;
+  capture();
+  const root=draft.bot.start_node, anchor=renderedPositions.get(root)||manualPositions.get(root)||{x:35,y:35};
+  const positions=fanLayout(draft.nodes,root,anchor);
+  manualPositions.clear();positions.forEach((point,id)=>manualPositions.set(id,point));
+  movingNodes.clear();storePositions();draw();
+  notice("Nodos ordenados en abanico. Inicio conserva su posición.");
 };
 graphViewport.addEventListener("keydown", event => {
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "a") {
