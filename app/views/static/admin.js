@@ -297,7 +297,7 @@ function finishNodeDrag(event) {
   if (graphViewport.hasPointerCapture(event.pointerId)) graphViewport.releasePointerCapture(event.pointerId);
   graphViewport.classList.remove("dragging-nodes");
   if (finished.moved) storePositions();
-  else { capture(); edit(finished.id); }
+  else { capture(); movingNodes.clear(); movingNodes.add(finished.id); edit(finished.id); }
 }
 graphViewport.addEventListener("pointerup",finishNodeDrag);
 graphViewport.addEventListener("pointercancel",finishNodeDrag);
