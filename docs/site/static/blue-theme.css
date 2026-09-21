@@ -1,0 +1,56 @@
+:root {
+  --blue-900: #193657;
+  --blue-800: #244675;
+  --blue-700: #315c8f;
+  --blue-500: #6688b3;
+  --blue-300: #a8bdd7;
+  --blue-200: #cbd9e9;
+  --blue-100: #e8eff7;
+  --blue-050: #f5f8fc;
+  color: var(--blue-900);
+  background: var(--blue-050);
+}
+
+body { color: var(--blue-900); background: var(--blue-050); }
+a, .brand, .bubble a, .document-card button { color: var(--blue-800); }
+.brand-dot, .eyebrow, .guide-number { color: var(--blue-700); }
+.intro-copy p, .guide ol, .footnote, .chat-header p, .message-label,
+.choices > p, .chat-footer, .feedback, .conversation-date,
+header p, .hint, label, #initial, #empty, #draft-status,
+#graph-count, .graph-help, .graph-legend, .graph-node .preview,
+.graph-node .meta, .graph-zoom output, .document-card span { color: var(--blue-500); }
+
+.chat, aside, .editor, .graph-panel, .graph-toolbar, .graph-legend,
+.graph-zoom, .document-preview { border-color: var(--blue-200); }
+.chat-header, .chat-footer, .guide, .savebar { border-color: var(--blue-200); }
+input, select, textarea { color: var(--blue-900); border-color: var(--blue-300); }
+.avatar, .badge, .bubble, .row, #notice { color: var(--blue-900); background: var(--blue-100); }
+.user .bubble { color: #fff; background: var(--blue-800); }
+
+button, #options button, #recover, .chat-footer #go-back,
+.document-preview > button { color: var(--blue-800); background: var(--blue-050); border-color: var(--blue-300); }
+button:hover:enabled, #options button:hover:enabled, #recover:hover:enabled,
+.chat-footer #go-back:hover:enabled, .document-preview > button:hover:enabled {
+  color: var(--blue-900); background: var(--blue-100); border-color: var(--blue-500);
+}
+#save, #options button { color: #fff; background: var(--blue-800); border-color: var(--blue-800); }
+#save:hover:enabled, #options button:hover:enabled { color: #fff; background: var(--blue-700); border-color: var(--blue-700); }
+button:focus-visible, a:focus-visible, input:focus-visible,
+select:focus-visible, textarea:focus-visible { outline-color: var(--blue-700); }
+
+#graph-viewport { background-color: #fff; background-image: radial-gradient(var(--blue-200) 1px, transparent 1px); }
+.graph-edge { stroke: var(--blue-300); }
+.graph-edge.active { stroke: var(--blue-800); }
+#graph-lines marker path { fill: var(--blue-700); }
+.edge-label { fill: var(--blue-700); stroke: #fff; }
+.graph-node { color: var(--blue-900); border-color: var(--blue-200); box-shadow: 0 3px 10px #24467514; }
+.graph-node.selected { border-color: var(--blue-800); background: var(--blue-100); box-shadow: 0 0 0 4px #24467518; }
+.graph-node.multi-selected { border-color: var(--blue-700); box-shadow: 0 0 0 3px #315c8f33; }
+.graph-node.selected.multi-selected { background: var(--blue-100); }
+.node-eye { color: var(--blue-700); }
+.node-eye:hover:enabled, .node-eye[aria-expanded="false"] { color: var(--blue-800); background: var(--blue-100); }
+.node-selection-box { border-color: var(--blue-700); background: #315c8f2b; }
+
+.document-card, .content-image img { border-color: var(--blue-200); }
+.document-card button { color: var(--blue-800); }
+.pending { color: var(--blue-700) !important; }

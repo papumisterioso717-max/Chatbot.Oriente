@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Asistente de orientación</title>
+  <link rel="stylesheet" href="static/chat.css">
+  <link rel="stylesheet" href="static/blue-theme.css">
+  <script src="demo.js" defer></script><script src="static/chat.js" defer></script>
+<link rel="stylesheet" href="demo.css"></head>
+<body><nav class="demo-bar" aria-label="Demostración"><strong>Demo interactiva</strong>
+<a href="index.html">Inicio</a><a href="chat.html">Chatbot</a><a href="admin.html">Administrador</a>
+<span>Los cambios se guardan solo en este navegador.</span>
+<button type="button" onclick="resetDemo()">Restablecer demo</button></nav>
+  <main class="shell">
+    <aside class="intro">
+      <a class="brand" href="chat.html" aria-label="Inicio del asistente"><span class="brand-icon">✳</span> Orienta<span class="brand-dot">.</span></a>
+      <div class="intro-copy"><span class="eyebrow">UN PASO A LA VEZ</span>
+        <h1>Encuentra tu<br>próximo paso.</h1>
+        <p>Elige una opción y te acompañamos hasta la información que necesitas.</p>
+      </div>
+      <div class="guide"><span class="guide-number">01 — 03</span><h2>Una conversación sencilla</h2>
+        <ol><li>Elige el tema que te interesa.</li><li>Explora las opciones disponibles.</li><li>Vuelve atrás cuando lo necesites.</li></ol>
+      </div>
+      <p class="footnote">Tu camino, a tu ritmo.</p>
+    </aside>
+    <section class="chat" aria-label="Chat de orientación">
+      <header class="chat-header"><div class="avatar" aria-hidden="true">✳</div><div><h2 id="bot-name">Asistente</h2><p>Orientación paso a paso</p></div><span class="badge">Chat guiado</span></header>
+      <div class="chat-body" id="chat-body">
+        <p class="conversation-date">TU CONVERSACIÓN</p>
+        <div id="messages" role="log" aria-label="Mensajes" aria-live="polite" aria-relevant="additions"></div>
+        <section class="choices" aria-label="Opciones disponibles"><p id="choice-caption">Preparando tu conversación…</p><div id="options"></div></section>
+      </div>
+      <div class="feedback"><p id="status" role="status"></p><div id="error-box" hidden><p id="error" role="alert"></p><button id="recover" type="button">Iniciar nueva conversación</button></div></div>
+      <footer class="chat-footer"><span>Selecciona un botón para continuar.</span><button id="go-back" type="button" disabled title="Regresar al paso anterior">↶ Volver</button></footer>
+    </section>
+  </main>
+  <noscript>Activa JavaScript para utilizar los botones del chatbot.</noscript>
+</body>
+</html>

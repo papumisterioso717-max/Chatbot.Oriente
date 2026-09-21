@@ -46,6 +46,10 @@ Dependencias directas: FastAPI 0.115.12, Uvicorn 0.34.2 y PyYAML 6.0.2. Pydantic
 
 ## Documentación
 
+Demo pública de GitHub Pages: <https://papumisterioso717-max.github.io/Chatbot.Oriente/>. Incluye chatbot y editor con almacenamiento local del navegador. No ejecuta FastAPI ni publica cambios en el árbol del servidor.
+
+Para actualizar la demo tras modificar la interfaz o el contenido, ejecutar `python scripts/build_demo.py` desde el entorno del proyecto y versionar `docs/site/`. GitHub Pages publica desde `main`, carpeta `/docs`. Los originales de la portada y la simulación se encuentran en `demo/`; `docs/site/` es la salida generada.
+
 - [Manual de uso](docs/MANUAL.md): chatbot, controles del editor, multimedia y guardado.
 - [Documentación técnica](docs/TECNICA.md): arquitectura, datos, API, pruebas y limitaciones.
 - [Checkpoints de Git](CHECKPOINTS.md): versiones guardadas y recuperación.
