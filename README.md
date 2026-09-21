@@ -6,15 +6,27 @@ Chatbot guiado por opciones, con contenido definido en YAML y editor visual de n
 
 ## Iniciar en Linux (WSL)
 
-Desde Ubuntu:
+Requisitos: Git y Python 3.12 con soporte para entornos virtuales. Desde Linux o una terminal de Ubuntu en WSL, clona el repositorio y prepara el entorno una sola vez:
 
 ```bash
-cd /mnt/c/Dev/chatbot
-source /home/yaqz/.venvs/chatbot/bin/activate
+git clone https://github.com/papumisterioso717-max/Chatbot.Oriente.git
+cd Chatbot.Oriente
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-Código: `C:\Dev\chatbot`. Entorno virtual: `/home/yaqz/.venvs/chatbot`. Python utilizado: 3.12, en Ubuntu-20.04. Detener con Ctrl+C. Ejecutar un solo proceso: las sesiones no se comparten entre workers.
+**Nota sobre las rutas:** `.venv` es una carpeta dentro del proyecto, no un nombre de usuario. Los comandos se ejecutan desde la carpeta donde clonaste el repositorio. Si ya tienes el proyecto, entra en su carpeta y omite `git clone`. Si utilizas un entorno virtual existente en otra ubicación, activa ese entorno con su propia ruta; no es necesario moverlo. Esta guía sustituye las rutas personales de la versión anterior por rutas relativas.
+
+Para volver a iniciar en otra terminal, entra en la carpeta del proyecto y ejecuta:
+
+```bash
+source .venv/bin/activate
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Detener con Ctrl+C. Ejecutar un solo proceso: las sesiones no se comparten entre workers.
 
 | Dirección | Uso |
 | --- | --- |
@@ -22,11 +34,12 @@ Código: `C:\Dev\chatbot`. Entorno virtual: `/home/yaqz/.venvs/chatbot`. Python 
 | <http://localhost:8000/admin> | Editor visual |
 | <http://localhost:8000/docs> | API interactiva |
 
-Para recrear el entorno con `uv` instalado:
+Como alternativa, con `uv` instalado y desde la carpeta del proyecto:
 
 ```bash
-~/.local/bin/uv venv --python 3.12 --seed /home/yaqz/.venvs/chatbot
-~/.local/bin/uv pip install --python /home/yaqz/.venvs/chatbot/bin/python -r /mnt/c/Dev/chatbot/requirements.txt
+uv venv --python 3.12 --seed .venv
+uv pip install --python .venv/bin/python -r requirements.txt
+source .venv/bin/activate
 ```
 
 Dependencias directas: FastAPI 0.115.12, Uvicorn 0.34.2 y PyYAML 6.0.2. Pydantic se instala como dependencia de FastAPI.

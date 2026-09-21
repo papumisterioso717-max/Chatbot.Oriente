@@ -33,7 +33,7 @@ git status --short
 
 No usar limpieza indiscriminada de archivos sin seguimiento: revisarlos individualmente. Tras restaurar código Python, reiniciar el servidor; para cambios de interfaz, recargar la página. Guardar antes cualquier borrador del panel que se quiera conservar.
 
-En PowerShell de este equipo, Git está disponible en `C:\Dev\git\cmd\git.exe`. Repositorio de GitHub: <https://github.com/papumisterioso717-max/Chatbot.Oriente>. El remoto `origin` apunta a este repositorio. La documentación se versiona junto al código; los checkpoints existentes conservan su contenido original.
+Ejecutar los comandos desde la carpeta del proyecto, con Git instalado y disponible en la terminal. Repositorio de GitHub: <https://github.com/papumisterioso717-max/Chatbot.Oriente>. El remoto `origin` apunta a este repositorio. La documentación se versiona junto al código; los checkpoints existentes conservan su contenido original.
 
 ## checkpoint-2026-09-20-editor-visual
 
@@ -52,7 +52,7 @@ El repositorio se creó inicialmente de forma local, sin remoto. Este commit usa
 Consultar el historial desde Ubuntu:
 
 ```bash
-cd /mnt/c/Dev/chatbot
+cd Chatbot.Oriente
 git log --oneline --decorate
 git status
 git show checkpoint-2026-09-20-editor-visual --stat
