@@ -5,6 +5,7 @@ const status = document.querySelector("#status");
 const errorBox = document.querySelector("#error-box");
 const recover = document.querySelector("#recover");
 const caption = document.querySelector("#choice-caption");
+const backButton = document.querySelector("#go-back");
 let state = null;
 let busy = false;
 
@@ -12,6 +13,7 @@ function setBusy(value) {
   busy = value;
   options.querySelectorAll("button").forEach(button => { button.disabled = value; });
   recover.disabled = value;
+  backButton.disabled = value || !state?.history.length;
   status.textContent = value ? "Un momento…" : "";
   options.setAttribute("aria-busy", String(value));
 }
@@ -206,5 +208,23 @@ async function select(option) {
   }
 }
 
+backButton.addEventListener("click", async () => {
+  if (busy || !state?.history.length) return;
+  setBusy(true);
+  try {
+    const previous = await request("/api/chat/back", {
+      session_id: state.session_id, revision: state.revision,
+    });
+    addMessage([{type:"text",text:"Volver al paso anterior"}], true);
+    state = previous;
+    render();
+  } catch (error) { showError(error); }
+  finally {
+    setBusy(false);
+    if (!errorBox.hidden) recover.focus();
+    else if (!backButton.disabled) backButton.focus({preventScroll:true});
+    else options.querySelector("button")?.focus({preventScroll:true});
+  }
+});
 recover.addEventListener("click", start);
 start();

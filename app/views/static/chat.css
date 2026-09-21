@@ -9,3 +9,4 @@
 
 
 .document-card button{font:inherit;color:#28573d;background:none;border:0;text-decoration:underline;text-underline-offset:3px;padding:0;cursor:pointer}.document-preview{width:min(720px,90vw);max-height:85dvh;border:1px solid #d8e2d2;border-radius:16px;padding:24px;color:#243c35}.document-preview::backdrop{background:#172d2566}.document-preview h2{font-size:18px;margin-top:0}.document-preview pre{font:14px/1.7 Segoe UI,Arial,sans-serif;white-space:pre-wrap;overflow-wrap:anywhere}.document-preview>button{border:1px solid #d4dfce;border-radius:8px;background:#f2f5ee;color:#315c47;padding:8px 16px;cursor:pointer}
+.chat-footer{display:flex;align-items:center;justify-content:space-between;gap:12px}.chat-footer #go-back{flex-shrink:0;border:1px solid #d4dfce;border-radius:10px;background:#f2f5ee;color:#315c47;padding:10px 14px;cursor:pointer}.chat-footer #go-back:disabled{opacity:.4;cursor:default}.chat-footer #go-back:hover:enabled{background:#e3eedc}

@@ -60,6 +60,20 @@ class ChatbotEngine:
             self.sessions[session_id] = session
             return self._state(session_id, session)
 
+    def back(self, session_id: str, revision: int) -> ConversationState:
+        with self.lock:
+            self._expire()
+            session = self.sessions.get(session_id)
+            if session is None:
+                raise ChatError("Sesión inexistente o caducada. Inicia una conversación.", 404)
+            if revision != session.revision:
+                raise ChatError("Selección desactualizada. Usa el último estado recibido.", 409)
+            if session.history:
+                session.current = session.history.pop()
+            session.revision += 1
+            session.touched = monotonic()
+            return self._state(session_id, session)
+
     def select(self, session_id: str, option_id: str, revision: int) -> ConversationState:
         with self.lock:
             self._expire()

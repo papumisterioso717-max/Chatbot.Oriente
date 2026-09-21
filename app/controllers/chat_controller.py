@@ -14,3 +14,6 @@ class ChatController:
 
     def node(self, node_id: str):
         return self.engine.get_node(node_id)
+
+    def back(self, navigation):
+        return self.engine.back(navigation.session_id, navigation.revision)

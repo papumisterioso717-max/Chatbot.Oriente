@@ -10,6 +10,12 @@ class Selection(BaseModel):
     revision: int = Field(ge=0)
 
 
+class BackRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    session_id: str = Field(min_length=1, max_length=128)
+    revision: int = Field(ge=0)
+
+
 class ConversationState(BaseModel):
     session_id: str
     bot_name: str
