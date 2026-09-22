@@ -2,7 +2,7 @@
 
 Documentación actualizada el 21 de septiembre de 2026. Base funcional: checkpoint `color-interfaz` (`a7ee19d`).
 
-Chatbot guiado por opciones, con contenido definido en YAML y editor visual de nodos. Usa Python, FastAPI y JavaScript sin framework de interfaz. Las respuestas provienen del árbol configurado; no se generan con inteligencia artificial.
+Chatbot guiado por opciones, con múltiples diagramas y editor visual de nodos. Usa Python, FastAPI y JavaScript sin framework de interfaz. Las respuestas provienen del árbol configurado; no se generan con inteligencia artificial.
 
 ## Iniciar en Linux (WSL)
 
@@ -55,6 +55,10 @@ Para actualizar la demo tras modificar la interfaz o el contenido, ejecutar `pyt
 - [Checkpoints de Git](CHECKPOINTS.md): versiones guardadas y recuperación.
 
 ## Estado actual
+
+El selector permite crear, nombrar, cambiar, renombrar e importar diagramas. Descargar genera un respaldo JSON del borrador y sus posiciones; los archivos multimedia deben respaldarse por separado. Eliminar exige confirmación y espera cinco segundos con opción de cancelar; siempre se conserva al menos un diagrama. El chatbot utiliza el diagrama activo.
+
+Los diagramas publicados se guardan en `data/diagrams.json`. En el primer inicio se importa `data/knowledge.yaml` como «Diagrama 1»; el YAML original se conserva y deja de ser la fuente activa cuando existe el catálogo.
 
 Incluye navegación por opciones, botón Volver, multimedia, administración del árbol, zoom, selección con recuadro, arrastre de nodos, desplazamiento con rueda presionada, plegado de ramas, acomodo en abanico y paleta azul.
 

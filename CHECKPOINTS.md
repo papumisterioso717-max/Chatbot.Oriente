@@ -1,6 +1,6 @@
 # Puntos de guardado
 
-Actualizado el 21 de septiembre de 2026. Último checkpoint funcional: `color-interfaz`.
+Actualizado el 22 de septiembre de 2026. Último checkpoint funcional: `gestion-diagramas-multiples`.
 
 ## Historial disponible
 
@@ -14,6 +14,7 @@ Actualizado el 21 de septiembre de 2026. Último checkpoint funcional: `color-in
 | `f8d562a` | `arrastre-con-click-rueda` | Desplazamiento con rueda presionada y etiquetas centradas |
 | `9036512` | `boton-de-regreso` | Botón Volver y endpoint de historial |
 | `a7ee19d` | `color-interfaz` | Paleta azul en chatbot y editor |
+| Este commit | `gestion-diagramas-multiples` | Diagramas independientes, respaldos e eliminación cancelable |
 
 `d7da6b5` también tiene la etiqueta `checkpoint-2026-09-20-seleccion-recuadro`.
 

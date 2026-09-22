@@ -15,6 +15,7 @@ Flujo: navegador → rutas FastAPI → controlador → servicio → modelos/dato
 | `app/services/chatbot_engine.py` | Sesiones, navegación, historial y revisión |
 | `app/services/yaml_manager.py` | Lectura validada y escritura atómica |
 | `app/services/admin_service.py` | Publicación, conflictos y actualización del motor |
+| `app/services/diagram_catalog.py` | Catálogo de diagramas, migración inicial y escritura atómica |
 | `app/services/file_manager.py` | Archivos publicados y rutas seguras |
 | `app/views/chat.html`, `static/chat.js`, `static/chat.css` | Interfaz conversacional |
 | `app/views/admin.html`, `static/admin.js`, `static/admin.css` | Borrador, formularios y grafo |
@@ -55,7 +56,7 @@ nodes:
         action: restart
 ```
 
-Los archivos se referencian por ruta; no se incrustan en YAML. Publicar valida los recursos y reemplaza atómicamente el YAML. La serialización conserva los datos, pero no comentarios ni formato manual.
+Los archivos se referencian por ruta y no se incrustan en los respaldos. Publicar valida los recursos y reemplaza atómicamente `data/diagrams.json`. Si el catálogo no existe, se importa el YAML original como Diagrama 1 sin modificarlo. Desde ese momento el catálogo es la fuente de datos activa.
 
 ## API
 
@@ -66,6 +67,7 @@ Los archivos se referencian por ruta; no se incrustan en YAML. Publicar valida l
 | `POST /api/chat/back` | Retroceder sin necesitar opción back en el nodo |
 | `GET /api/chat/node/{node_id}` | Consulta sin modificar sesión |
 | `GET /api/admin/tree` | Conocimiento y revisión administrativa |
+| `POST /api/admin/diagrams` | Crear, cambiar, renombrar o eliminar: `{action, revision, diagram_id?, name?, knowledge?}` |
 | `PUT /api/admin/tree` | Publicar árbol completo: `{revision, knowledge}` |
 | `POST /api/admin/node` | Crear: `{revision, node_id, node}` |
 | `PUT /api/admin/node/{node_id}` | Actualizar: `{revision, node_id, node}` |
@@ -116,6 +118,9 @@ python -m unittest discover -s tests -v
 | `test_phase3.py` | Multimedia y archivos |
 | `test_phase4.py` | Administración, conflictos y guardado |
 | `test_back.py` | Regreso repetido, revisión y sesión inexistente |
+| `test_diagrams.py` | Migración, independencia, importación, conflictos, eliminación y fallos de escritura |
+
+Las cuatro pruebas de `tests.test_diagrams` usan datos temporales independientes y se verificaron para esta actualización. La interfaz incluye una cuenta regresiva cancelable de cinco segundos antes de enviar la eliminación al servidor. Las posiciones se guardan por diagrama bajo `orienta-node-positions:<id>`; los respaldos JSON incluyen nombre, conocimiento y posiciones. La demo conserva su catálogo en el almacenamiento local del navegador.
 
 Las pruebas históricas dependen parcialmente del árbol de ejemplo original. El contenido actual está personalizado: los conteos históricos de pruebas aprobadas no certifican este estado. `test_back.py` presupone dos opciones next consecutivas. Migrar a fixtures explícitos antes de automatizar validación general; no reemplazar datos reales para satisfacer pruebas antiguas. En esta actualización documental no se ejecutó la suite.
 
@@ -130,4 +135,4 @@ Comprobaciones manuales recomendadas tras cambios funcionales:
 
 ## Mantenimiento
 
-Si WSL no detecta cambios Python sobre la carpeta compartida, detener y reiniciar Uvicorn. Editar YAML manualmente requiere reinicio; publicar desde el editor actualiza el motor. Para cambios estáticos, guardar el borrador y recargar la página. Git conserva archivos versionados, no el estado del navegador.
+Si WSL no detecta cambios Python sobre la carpeta compartida, detener y reiniciar Uvicorn. Editar el YAML original no modifica un catálogo ya creado; publicar desde el editor actualiza el motor. Para cambios estáticos, guardar el borrador y recargar la página. Git conserva archivos versionados, no el estado del navegador.

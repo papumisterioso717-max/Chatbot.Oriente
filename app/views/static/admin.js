@@ -9,6 +9,7 @@ const MIN_ZOOM = 0.25, MAX_ZOOM = 2;
 const movingNodes = new Set();
 const manualPositions = new Map();
 const collapsedNodes = new Set();
+let positionKey = "orienta-node-positions";
 function hiddenDescendants() {
   const hidden = new Set();
   for (const parent of collapsedNodes) {
@@ -40,7 +41,7 @@ try {
   });
 } catch { /* Layout storage is optional; the conversation is unaffected. */ }
 function storePositions() {
-  try { localStorage.setItem("orienta-node-positions", JSON.stringify(Object.fromEntries(manualPositions))); }
+  try { localStorage.setItem(positionKey, JSON.stringify(Object.fromEntries(manualPositions))); }
   catch { /* Moving nodes also works when browser storage is unavailable. */ }
 }
 function applyGraphZoom() {
@@ -223,6 +224,7 @@ function optionRow(item) {
   element.read=()=>({id:id.value,label:label.value,...(select.value.startsWith("node:")?{next:select.value.slice(5)}:select.value?{action:select.value.slice(7)}:{})});
 }
 function edit(id) {
+  if (typeof syncDiagrams === "function") syncDiagrams();
   selected=id;const node=draft.nodes[id];$("empty").hidden=true;$("editor").hidden=false;
   $("editor-title").textContent="Configurar · "+id;$("node-id").value=id;$("node-type").value=node.type;$("initial").textContent=id===draft.bot.start_node?"Inicial":"";$("delete").hidden=id===draft.bot.start_node;
   $("contents").replaceChildren();$("options-editor").replaceChildren();node.content.forEach(contentRow);node.options.forEach(optionRow);draw();

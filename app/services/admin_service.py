@@ -6,6 +6,7 @@ from pydantic import ValidationError
 from app.models.knowledge import Knowledge
 from app.services.chatbot_engine import ChatError
 from app.services.file_manager import FileManager
+from app.services.diagram_catalog import DiagramCatalog
 
 
 class AdminService:
@@ -17,6 +18,28 @@ class AdminService:
 
     def revision(self):
         return sha256(self.yaml.path.read_bytes()).hexdigest()
+
+    def diagram_change(self, body):
+        with self.lock, self.engine.lock:
+            if body.revision != self.revision():
+                raise ChatError("Los diagramas cambiaron. Recarga antes de continuar.", 409)
+            data = self.yaml.read()
+            backup = body.knowledge.model_dump(mode="json", exclude_none=True) if body.knowledge else None
+            data = DiagramCatalog.change(data, body.action, body.diagram_id, body.name, backup)
+            knowledge = Knowledge.model_validate(data["diagrams"][data["active"]]["knowledge"])
+            manager = FileManager(self.files.manager.root, knowledge)
+            try:
+                manager.validate()
+            except ValueError as error:
+                raise ChatError(str(error), 422) from error
+            try:
+                self.yaml.write(data)
+            except OSError as error:
+                raise ChatError("No se pudo guardar el cambio de diagramas.", 500) from error
+            self.engine.knowledge = knowledge
+            self.engine.sessions.clear()
+            self.files.manager = manager
+            return self.snapshot()
 
     def replace_tree(self, revision, knowledge):
         """Commit nodes and their connecting options together."""
@@ -48,8 +71,13 @@ class AdminService:
                     continue
                 reachable.add(node_id)
                 pending.extend(option.next for option in knowledge.nodes[node_id].options if option.next)
-            return {"revision": self.revision(), "knowledge": knowledge.model_dump(mode="json", exclude_none=True),
-                    "unreachable": sorted(set(knowledge.nodes) - reachable)}
+            result = {"revision": self.revision(), "knowledge": knowledge.model_dump(mode="json", exclude_none=True),
+                      "unreachable": sorted(set(knowledge.nodes) - reachable)}
+            if isinstance(self.yaml, DiagramCatalog):
+                catalog = self.yaml.read()
+                result.update(diagram_id=catalog["active"], diagrams=[
+                    {"id": key, "name": item["name"]} for key, item in catalog["diagrams"].items()])
+            return result
 
     def change(self, revision, node_id, node=None, create=False):
         with self.lock, self.engine.lock:

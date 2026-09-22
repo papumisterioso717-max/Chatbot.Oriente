@@ -1,12 +1,23 @@
 "use strict";
 const demoKey = "orienta-demo-tree-v1";
+const demoCatalogKey = "orienta-demo-diagrams-v1";
 let demoSession = null;
+async function demoCatalog() {
+  const stored=localStorage.getItem(demoCatalogKey);
+  if(stored)return JSON.parse(stored);
+  const legacy=localStorage.getItem(demoKey);
+  if(legacy){const item=JSON.parse(legacy);return {active:"diagrama-1",revision:item.revision,diagrams:{"diagrama-1":{name:"Diagrama 1",knowledge:item.knowledge}}};}
+  const response=await fetch("diagrams.json");
+  if(!response.ok)throw new Error("No se pudo cargar la demo.");
+  return {...await response.json(),revision:"initial"};
+}
+function demoSnapshot(catalog) {
+  return {revision:catalog.revision,diagram_id:catalog.active,
+    knowledge:catalog.diagrams[catalog.active].knowledge,
+    diagrams:Object.entries(catalog.diagrams).map(([id,item])=>({id,name:item.name}))};
+}
 async function demoTree() {
-  const stored = localStorage.getItem(demoKey);
-  if (stored) return JSON.parse(stored);
-  const response = await fetch("knowledge.json");
-  if (!response.ok) throw new Error("No se pudo cargar la demo.");
-  return {revision:"initial", knowledge:await response.json()};
+  return demoSnapshot(await demoCatalog());
 }
 function validateDemo(tree) {
   if (!tree.nodes[tree.bot.start_node]) throw new Error("Falta el nodo inicial.");
@@ -22,14 +33,32 @@ function validateDemo(tree) {
   }
 }
 async function demoAdmin(path, method, body) {
-  const saved = await demoTree();
-  if (path === "/tree" && method === "GET") return saved;
-  if (path !== "/tree" || method !== "PUT") throw new Error("Operación no disponible en esta demo.");
-  if (saved.revision !== body.revision) throw new Error("La demo cambió en otra pestaña. Recarga antes de guardar.");
-  validateDemo(body.knowledge);
-  const next = {revision:crypto.randomUUID(), knowledge:body.knowledge};
-  localStorage.setItem(demoKey, JSON.stringify(next));
-  return structuredClone(next);
+  const catalog=await demoCatalog();
+  if(path==="/tree"&&method==="GET")return demoSnapshot(catalog);
+  if(catalog.revision!==body.revision)throw new Error("La demo cambió en otra pestaña. Recarga antes de guardar.");
+  if(path==="/tree"&&method==="PUT"){
+    validateDemo(body.knowledge);catalog.diagrams[catalog.active].knowledge=body.knowledge;
+  }else if(path==="/diagrams"&&method==="POST"){
+    const {action,diagram_id:id}=body, name=body.name?.trim();
+    if(["create","rename"].includes(action)){
+      if(!name||name.length>80)throw new Error("Escribe un nombre de hasta 80 caracteres.");
+      if(Object.entries(catalog.diagrams).some(([key,item])=>key!==id&&item.name.toLowerCase()===name.toLowerCase()))throw new Error("Ya existe un diagrama con ese nombre.");
+    }
+    if(action==="create"){
+      const knowledge=body.knowledge || {version:1,bot:{name,start_node:"inicio"},nodes:{inicio:{type:"question",content:[{type:"text",text:"¡Hola! Elige una opción para comenzar."}],options:[]}}};
+      validateDemo(knowledge);const key=crypto.randomUUID();catalog.diagrams[key]={name,knowledge};catalog.active=key;
+    }else{
+      if(!catalog.diagrams[id])throw new Error("El diagrama ya no existe.");
+      if(action==="switch")catalog.active=id;
+      else if(action==="rename")catalog.diagrams[id].name=name;
+      else if(action==="delete"){
+        if(Object.keys(catalog.diagrams).length===1)throw new Error("Conserva al menos un diagrama.");
+        delete catalog.diagrams[id];if(catalog.active===id)catalog.active=Object.keys(catalog.diagrams)[0];
+      }else throw new Error("Operación no disponible.");
+    }
+  }else throw new Error("Operación no disponible en esta demo.");
+  catalog.revision=crypto.randomUUID();localStorage.setItem(demoCatalogKey,JSON.stringify(catalog));
+  return structuredClone(demoSnapshot(catalog));
 }
 async function demoChat(path, body) {
   if (path === "/api/chat/start") {
@@ -57,6 +86,8 @@ async function demoChat(path, body) {
 function resetDemo() {
   if (!confirm("¿Restablecer el árbol de demostración? Se perderán las ediciones de esta demo en este navegador.")) return;
   localStorage.removeItem(demoKey);
+  localStorage.removeItem(demoCatalogKey);
+  Object.keys(localStorage).filter(key=>key.startsWith("orienta-demo-positions:")).forEach(key=>localStorage.removeItem(key));
   localStorage.removeItem("orienta-demo-positions");
   location.reload();
 }

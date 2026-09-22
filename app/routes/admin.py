@@ -2,7 +2,7 @@ from urllib.parse import urlsplit
 
 from fastapi import APIRouter, Depends, Request
 
-from app.models.admin import DeleteNode, NodeWrite, TreeWrite
+from app.models.admin import DeleteNode, NodeWrite, TreeWrite, DiagramChange
 from app.services.chatbot_engine import ChatError
 
 
@@ -25,6 +25,11 @@ router = APIRouter(prefix="/api/admin", tags=["Administración local"], dependen
 @router.get("/tree")
 def tree(request: Request):
     return request.app.state.admin_controller.tree()
+
+
+@router.post("/diagrams")
+def diagram_change(body: DiagramChange, request: Request):
+    return request.app.state.admin_controller.service.diagram_change(body)
 
 
 @router.put("/tree")

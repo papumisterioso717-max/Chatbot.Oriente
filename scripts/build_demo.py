@@ -10,8 +10,14 @@ OUT = ROOT / "docs" / "site"
 OUT.mkdir(parents=True, exist_ok=True)
 shutil.copytree(ROOT / "app/views/static", OUT / "static", dirs_exist_ok=True)
 knowledge = yaml.safe_load((ROOT / "data/knowledge.yaml").read_text(encoding="utf-8"))
+catalog_path = ROOT / "data/diagrams.json"
+catalog = json.loads(catalog_path.read_text(encoding="utf-8")) if catalog_path.exists() else {
+    "version": 1, "active": "diagrama-1", "diagrams": {"diagrama-1": {"name": "Diagrama 1", "knowledge": knowledge}}
+}
+knowledge = catalog["diagrams"][catalog["active"]]["knowledge"]
+(OUT / "diagrams.json").write_text(json.dumps(catalog, ensure_ascii=False), encoding="utf-8")
 (OUT / "knowledge.json").write_text(json.dumps(knowledge, ensure_ascii=False), encoding="utf-8")
-for node in knowledge["nodes"].values():
+for node in (node for diagram in catalog["diagrams"].values() for node in diagram["knowledge"]["nodes"].values()):
     for item in node["content"]:
         if "file" in item:
             source = (ROOT / "storage" / item["file"]).resolve()
@@ -27,7 +33,6 @@ banner = '''<nav class="demo-bar" aria-label="Demostración"><strong>Demo intera
 for page in ("chat", "admin"):
     html = (ROOT / f"app/views/{page}.html").read_text(encoding="utf-8")
     html = html.replace('"/static/', '"static/').replace('href="/"', 'href="chat.html"')
-    html = html.replace('<script src=', '<script src=', 1)
     html = html.replace('</head>', '<link rel="stylesheet" href="demo.css"></head>')
     html = html.replace('<script src="static/', '<script src="demo.js" defer></script><script src="static/', 1)
     html = html.replace('<body>', '<body>' + banner)
@@ -46,6 +51,8 @@ admin = admin.replace('orienta-node-positions', 'orienta-demo-positions')
 admin = admin.replace('Árbol guardado. Ya está disponible en el chatbot.', 'Guardado en este navegador. Abre el chatbot de la demo para probarlo.')
 admin = admin.replace('Los cambios se publican al guardar el árbol.', 'Los cambios se guardan solo en este navegador.')
 (OUT / "static/admin.js").write_text(admin, encoding="utf-8")
+diagrams_js = (OUT / "static/diagrams.js").read_text(encoding="utf-8").replace("orienta-node-positions", "orienta-demo-positions")
+(OUT / "static/diagrams.js").write_text(diagrams_js, encoding="utf-8")
 (OUT / ".nojekyll").touch()
 for name in ("index.html", "demo.js", "demo.css"):
     shutil.copy2(ROOT / "demo" / name, OUT / name)

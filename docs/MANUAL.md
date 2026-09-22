@@ -10,6 +10,14 @@ Si se configuró **Menú principal**, esa opción vuelve al inicio y vacía el h
 
 ## Controles del editor
 
+### Diagramas
+
+En la barra superior, **Diagrama activo** permite cambiar de árbol. **Nuevo diagrama** solicita un nombre y crea un árbol independiente; también puedes renombrarlo. Guarda los cambios antes de cambiar de diagrama: si hay un borrador pendiente, se pide confirmar su descarte. El chatbot usa el diagrama activo y las conversaciones anteriores se reinician al cambiarlo.
+
+**Descargar** guarda un respaldo JSON del contenido actual y las posiciones, incluso si tienes cambios pendientes. **Importar** recupera ese respaldo como un nuevo diagrama. Las imágenes y documentos no se incluyen: conserva también los archivos de `storage/`.
+
+**Eliminar** abre una advertencia. Al confirmar comienza una cuenta regresiva de cinco segundos; **Cancelar** o Escape detienen la eliminación durante ese plazo. No se permite eliminar el último diagrama.
+
 Abrir <http://localhost:8000/admin>. El árbol aparece en el lienzo y la configuración del nodo elegido en el panel lateral.
 
 | Control | Resultado |
@@ -56,7 +64,7 @@ Imágenes: PNG, JPG/JPEG, GIF y WEBP. Documentos: PDF, TXT, DOCX, XLSX y PPTX. T
 
 | Información | Persistencia |
 | --- | --- |
-| Contenido y conexiones publicados | `data/knowledge.yaml` |
+| Diagramas, contenido y conexiones publicados | `data/diagrams.json` |
 | Multimedia | `storage/` |
 | Borrador | Memoria de la pestaña; se pierde al cerrarla |
 | Posiciones de nodos | Almacenamiento local del navegador |
@@ -72,5 +80,5 @@ Guardar el árbol antes de crear un checkpoint si se desea incluir el contenido 
 - Nodo fuera de vista: buscar, desplegar su rama o usar Centrar selección.
 - No hay hueco para crear: desplazarse a una zona vacía o reducir zoom.
 - Error al publicar: revisar campos obligatorios, referencias y archivos. Un conflicto requiere reconciliar el borrador con la versión guardada.
-- Edición manual de YAML no visible: reiniciar el servidor; el panel sí actualiza el motor al publicar.
+- Edición manual de YAML no visible: el YAML solo se importa cuando todavía no existe `data/diagrams.json`; usa el editor para modificar los diagramas activos.
 - Localhost no responde: comprobar que Uvicorn sigue ejecutándose en Ubuntu en el puerto 8000.

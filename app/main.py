@@ -16,6 +16,7 @@ from app.routes.files import router as files_router
 from app.routes.admin import router as admin_router
 from app.services.admin_service import AdminService
 from app.controllers.admin_controller import AdminController
+from app.services.diagram_catalog import DiagramCatalog
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -24,7 +25,7 @@ ROOT = Path(__file__).resolve().parent.parent
 def create_app(knowledge_path: Path | None = None, storage_path: Path | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        yaml_manager = YamlManager(knowledge_path or ROOT / "data" / "knowledge.yaml")
+        yaml_manager = DiagramCatalog(YamlManager(knowledge_path or ROOT / "data" / "knowledge.yaml"))
         knowledge = yaml_manager.load()
         manager = FileManager(storage_path or ROOT / "storage", knowledge)
         manager.validate()
