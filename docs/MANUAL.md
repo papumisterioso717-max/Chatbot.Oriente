@@ -18,7 +18,7 @@ En la barra superior, **Diagrama activo** permite cambiar de árbol. **Nuevo dia
 
 **Eliminar** abre una advertencia. Al confirmar comienza una cuenta regresiva de cinco segundos; **Cancelar** o Escape detienen la eliminación durante ese plazo. No se permite eliminar el último diagrama.
 
-Abrir <http://localhost:8000/admin>. El árbol aparece en el lienzo y la configuración del nodo elegido en el panel lateral.
+Abrir <http://localhost:8000/admin>. El árbol aparece en el lienzo y la configuración del nodo elegido en el panel lateral. Los controles de diagramas están en el encabezado del árbol, con el buscador a la derecha. Haz clic derecho sobre el fondo punteado para abrir el menú con **Seleccionar todos**, **Ordenar nodos**, **Centrar selección** y **+ Nodo**. El menú se cierra al elegir una acción, pulsar Escape o hacer clic fuera.
 
 | Control | Resultado |
 | --- | --- |
